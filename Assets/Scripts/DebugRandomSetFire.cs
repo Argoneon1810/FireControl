@@ -22,7 +22,7 @@ public class DebugRandomSetFire : MonoBehaviour {
                 }
             }
             if(spreadable != null && !torched) {
-                foreach(var gO in placer.gOs) {
+                foreach(GameObject gO in placer.gOs) {
                     if(IsUnburnt(spreadable)) {
                         spreadable.MarkTorched();
                         break;

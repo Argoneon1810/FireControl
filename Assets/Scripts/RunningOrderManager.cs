@@ -37,7 +37,7 @@ public class RunningOrderManager : MonoBehaviour {
             else if (a.Key < b.Key) return -1;
             else return 0;
         });
-        foreach(var runnable in runnableList) {
+        foreach(KeyValuePair<int, Callback> runnable in runnableList) {
             runnable.Value.Invoke();
         }
     }

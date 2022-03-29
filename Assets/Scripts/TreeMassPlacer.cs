@@ -36,7 +36,7 @@ public abstract class TreeMassPlacer : MonoBehaviour {
         set {
             _masterSpreadTime = value;
             if(_gOs != null) {
-                foreach(var gO in _gOs) {
+                foreach(GameObject gO in _gOs) {
                     FireSpread spreadable = gO.GetComponent<FireSpread>();
                     spreadable.spreadTimeGoal = value;
                 }
@@ -97,7 +97,7 @@ public abstract class TreeMassPlacer : MonoBehaviour {
 
                     RaycastHit[] hits = Physics.RaycastAll(gO.transform.position, Vector3.down, height*2f, 1 << LayerMask.NameToLayer("Land"));
                     bool validSpawn = false;
-                    foreach (var hit2 in hits) {
+                    foreach (RaycastHit hit2 in hits) {
                         gO.transform.position = hit2.point;
                         validSpawn = true;
                     }

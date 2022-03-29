@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThundercloudSpawner : MonoBehaviour {
+public class ThunderCloudSpawner : MonoBehaviour {
     [SerializeField] GameObject cloudPrefab;
     [SerializeField] CameraShaker cameraShaker;
     [SerializeField] private PCGCubeMapGenerator _generator;
@@ -11,6 +11,8 @@ public class ThundercloudSpawner : MonoBehaviour {
         set => _generator = value;
     }
     [SerializeField] float cloudHeight;
+    [SerializeField] float numOfCloudPerCall = 2;
+    [SerializeField] bool debugSpawnThunderCloud;
 
     public bool doNotSpawn = true;
 
@@ -20,11 +22,19 @@ public class ThundercloudSpawner : MonoBehaviour {
         generator.PostRiseEvent += Spawn;
     }
 
+    void Update() {
+        if(debugSpawnThunderCloud) {
+            debugSpawnThunderCloud = false;
+            Spawn();
+        }
+    }
+
     void Spawn() {
-        Vector3 point = _generator.GetPointOnSurface(Random.Range(0, _generator.mapChunkSize), Random.Range(0, _generator.mapChunkSize)) + Vector3.up * cloudHeight;
-        GameObject cloud = Instantiate(cloudPrefab, point, Quaternion.identity);
-        var dropper = cloud.GetComponent<ThunderDropper>();
-        dropper.OnHit += new System.Action(cameraShaker.GetShake());
-        dropper.Call();
+        for(int i = 0; i < numOfCloudPerCall; ++i) {
+            Vector3 point = _generator.GetPointOnSurface(Random.Range(0, _generator.mapChunkSize), Random.Range(0, _generator.mapChunkSize)) + Vector3.up * cloudHeight;
+            ThunderCloud dropper = Instantiate(cloudPrefab, point, Quaternion.identity).GetComponent<ThunderCloud>();
+            dropper.OnHit += new System.Action(cameraShaker.GetShake());
+            dropper.Call();
+        }
     }
 }

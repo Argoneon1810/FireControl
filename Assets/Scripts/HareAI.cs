@@ -19,7 +19,7 @@ public class HareAI : MonoBehaviour {
     private void Start() {
         RaycastHit[] hits = Physics.SphereCastAll(transform.position, searchRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
         float sqrDistance = float.MinValue;
-        foreach(var hit in hits) {
+        foreach(RaycastHit hit in hits) {
             float tempDist = (hit.transform.position - transform.position).sqrMagnitude;
             if(tempDist > sqrDistance) {
                 sqrDistance = tempDist;
@@ -76,7 +76,7 @@ public class HareAI : MonoBehaviour {
         target = null;
         GetComponent<Animator>().SetTrigger("Death");
         GetComponent<Rigidbody>().isKinematic = true;
-        var emission = fireParticle.emission;
+        ParticleSystem.EmissionModule emission = fireParticle.emission;
         emission.enabled = false;
         StartCoroutine(SelfKillCoroutine());
     }

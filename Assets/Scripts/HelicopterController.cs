@@ -5,10 +5,12 @@ using Cinemachine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class HelicopterController : MonoBehaviour {
+    const int BASE_ROTOR_SPEED = 3000;
+
     [SerializeField] InputManager inputManager;
 
     [SerializeField] float movementSpeedMultiplier = 30;
-    [SerializeField] float rotorSpeedMultiplier;
+    [SerializeField] float rotorSpeedMultiplier = 1;
     [SerializeField] float rotationDuration;
     [SerializeField] Transform tailRotor, mainRotor;
     float turnSmoothVelocity;
@@ -45,8 +47,8 @@ public class HelicopterController : MonoBehaviour {
 
     void Update() {
         if(mainRotor!=null)
-            mainRotor.rotation = Quaternion.Euler(mainRotor.rotation.eulerAngles + Vector3.up * rotorSpeedMultiplier);
+            mainRotor.rotation = Quaternion.Euler(mainRotor.rotation.eulerAngles + Vector3.up * BASE_ROTOR_SPEED * rotorSpeedMultiplier * Time.deltaTime);
         if(tailRotor!=null)
-            tailRotor.rotation = Quaternion.Euler(tailRotor.rotation.eulerAngles + Vector3.forward * rotorSpeedMultiplier);
+            tailRotor.rotation = Quaternion.Euler(tailRotor.rotation.eulerAngles + Vector3.forward * BASE_ROTOR_SPEED * rotorSpeedMultiplier * Time.deltaTime);
     }
 }

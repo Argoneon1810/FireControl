@@ -30,12 +30,12 @@ public class MeteoBody : MonoBehaviour {
         if(collision.gameObject.layer == LayerMask.NameToLayer("Land")) {
             OnHit?.Invoke();
             RaycastHit[] hits = Physics.SphereCastAll(transform.position, FlameRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
-            foreach(var hit in hits) {
+            foreach(RaycastHit hit in hits) {
                 if(hit.transform.TryGetComponent<FireSpread>(out FireSpread spreadable))
                     spreadable.MarkTorched();
             }
             gravityDir = Vector3.down;
-            foreach(var crashParticle in crashParticles) {
+            foreach(GameObject crashParticle in crashParticles) {
                 crashParticle.transform.SetParent(null, false);
                 crashParticle.transform.position = collision.contacts[0].point;
                 if(collision.contacts[0].normal != Vector3.right) {
@@ -45,11 +45,12 @@ public class MeteoBody : MonoBehaviour {
                 }
                 crashParticle.SetActive(true);
             }
-            foreach(var flyParticle in flyParticles) {
+            foreach(GameObject flyParticle in flyParticles) {
                 flyParticle.SetActive(false);
             }
             StartCoroutine(DestroySelf());
             doneStrike = true;
+            mRigidbody.isKinematic = true;
         }
     }
 
@@ -72,9 +73,9 @@ public class MeteoBody : MonoBehaviour {
     }
 
     void Kill() {
-        foreach(var crashParticle in crashParticles)
+        foreach(GameObject crashParticle in crashParticles)
             Destroy(crashParticle.gameObject);
-        foreach(var flyParticle in flyParticles)
+        foreach(GameObject flyParticle in flyParticles)
             Destroy(flyParticle.gameObject);
         for(int i = transform.childCount-1; i >= 0; --i) {
             Destroy(transform.GetChild(i).gameObject);

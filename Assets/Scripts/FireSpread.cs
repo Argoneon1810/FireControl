@@ -52,7 +52,7 @@ public class FireSpread : MonoBehaviour {
 
     void Spread() {
         RaycastHit[] hits = Physics.SphereCastAll(transform.position + Vector3.up * 4, spreadSpherecastRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
-        foreach(var hit in hits) {
+        foreach(RaycastHit hit in hits) {
             if(hit.transform.TryGetComponent<FireSpread>(out FireSpread spreadable)) {
                 if(spreadable != this && !spreadable.bIsOnFire && !spreadable.bIsBurnt)
                     spreadable.MarkTorched();
@@ -80,7 +80,7 @@ public class FireSpread : MonoBehaviour {
             float randDist = Random.Range(4, bunnySpawnRadius);
             Vector3 randPosition = transform.position + randDir * randDist;
             RaycastHit[] hits = Physics.RaycastAll(randPosition, Vector3.down, 50*2f, 1 << LayerMask.NameToLayer("Land"));
-            foreach(var hit in hits)
+            foreach(RaycastHit hit in hits)
                 Instantiate(BunnyPrefab, hit.point, Quaternion.identity);
         }
     }

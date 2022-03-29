@@ -25,7 +25,7 @@ public class HelicopterExtinguisher : MonoBehaviour {
             ExtinguishRangeIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             ExtinguishRangeIndicator.name = "ExtinguishRangeIndicator Heli";
             ExtinguishRangeIndicator.transform.localScale = new Vector3(extinguisherRadius, extinguisherRadius, extinguisherRadius) * 2;
-            var renderer = ExtinguishRangeIndicator.GetComponent<MeshRenderer>();
+            MeshRenderer renderer = ExtinguishRangeIndicator.GetComponent<MeshRenderer>();
             renderer.material = ExtinguishMaterial;
         }
         ExtinguishRangeIndicator.SetActive(false);

@@ -13,7 +13,7 @@ public class MeteoThrower : MonoBehaviour {
 
     [SerializeField] bool debugShootMeteorite;
 
-    [SerializeField] int repeatFor = 1;
+    [SerializeField] int numOfMeteoPerCall = 2;
     Vector3 size, position;
 
     [SerializeField] float meteoLaunchHeight = 40f;
@@ -43,7 +43,7 @@ public class MeteoThrower : MonoBehaviour {
     }
 
     IEnumerator ShootMeteo() {
-        for(int i = 0; i < repeatFor; ++i) {
+        for(int i = 0; i < numOfMeteoPerCall; ++i) {
             //pick any point on a surface
             Vector3 point = _generator.GetPointOnSurface(Random.Range(0, _generator.mapChunkSize), Random.Range(0, _generator.mapChunkSize));
             //random angle to enter targeted point

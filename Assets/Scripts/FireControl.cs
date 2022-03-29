@@ -26,14 +26,14 @@ public class FireControl : MonoBehaviour {
             TorchRangeIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             TorchRangeIndicator.name = "ArsonRangeIndicator";
             TorchRangeIndicator.transform.localScale = new Vector3(fireSpreadRadius, fireSpreadRadius, fireSpreadRadius) * 2;
-            var renderer = TorchRangeIndicator.GetComponent<MeshRenderer>();
+            MeshRenderer renderer = TorchRangeIndicator.GetComponent<MeshRenderer>();
             renderer.material = TorchMaterial;
         }
         if(!ExtinguishRangeIndicator) {
             ExtinguishRangeIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             ExtinguishRangeIndicator.name = "ExtinguishRangeIndicator";
             ExtinguishRangeIndicator.transform.localScale = new Vector3(extinguisherRadius, extinguisherRadius, extinguisherRadius) * 2;
-            var renderer = ExtinguishRangeIndicator.GetComponent<MeshRenderer>();
+            MeshRenderer renderer = ExtinguishRangeIndicator.GetComponent<MeshRenderer>();
             renderer.material = ExtinguishMaterial;
         }
         TorchRangeIndicator.SetActive(false);

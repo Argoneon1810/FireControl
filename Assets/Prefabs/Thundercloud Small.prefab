@@ -93,11 +93,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3997732665546008845}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17a6bb30a8205514d8c0c31728ddbf5d, type: 3}
+  m_Script: {fileID: 11500000, guid: 6f2faff66a9454948bab48b43fab2967, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  expandDuration: 0.5
-  expandCurve:
+  showHideDuration: 0.5
+  showHideCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -155,25 +155,25 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: 0.0055757235
+      outSlope: 0.0055757235
       tangentMode: 0
-      weightedMode: 0
+      weightedMode: 3
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.77615595
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: 2.4966295
+      outSlope: 2.4966295
       tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
+      weightedMode: 3
+      inWeight: 0.2405892
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  thunderReachDuration: 0.2
+  thunderReachDuration: 0.5
   fireSpreadRadius: 7
   DebugCall: 0
 --- !u!1 &3998197810456918222
