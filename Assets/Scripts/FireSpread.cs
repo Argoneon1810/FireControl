@@ -7,7 +7,7 @@ public class FireSpread : MonoBehaviour {
     private const int MAX_TRIAL = 3;
 
     [SerializeField] private float spreadSpherecastRadius = 7;
-    [SerializeField] private float spreadTimeGoal = 5;
+    [SerializeField] private float _spreadTimeGoal = 5;
     [SerializeField] private float stochasticSpreadRate = .2f;
     [SerializeField] private float bunnySpawnRate = .05f;
     [SerializeField] private float bunnySpawnRadius = 20;
@@ -16,8 +16,9 @@ public class FireSpread : MonoBehaviour {
     private bool _bIsOnFire, _bIsBurnt;
     private Animator mAnimator;
 
-    public bool bIsOnFire {get=>_bIsOnFire;}
-    public bool bIsBurnt {get=>_bIsBurnt;}
+    public bool bIsOnFire { get => _bIsOnFire; }
+    public bool bIsBurnt { get => _bIsBurnt; }
+    public float spreadTimeGoal { get => _spreadTimeGoal; set => _spreadTimeGoal = value; }
 
     float continuousFlameTime;
 
@@ -30,7 +31,7 @@ public class FireSpread : MonoBehaviour {
     void Update() {
         if(_bIsOnFire) {
             continuousFlameTime += Time.deltaTime;
-            if(continuousFlameTime > spreadTimeGoal) {
+            if(continuousFlameTime > _spreadTimeGoal) {
                 MarkDoneBurning();
                 Spread();
             } else {
@@ -96,7 +97,7 @@ public class FireSpread : MonoBehaviour {
         continuousFlameTime = 0;
     }
 
-    void MarkDoneBurning() {
+    public void MarkDoneBurning() {
         _bIsOnFire = false;
         _bIsOnFire = true;
         mAnimator.SetTrigger("Done Burning");

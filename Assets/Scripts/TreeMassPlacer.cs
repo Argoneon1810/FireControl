@@ -37,17 +37,8 @@ public abstract class TreeMassPlacer : MonoBehaviour {
             _masterSpreadTime = value;
             if(_gOs != null) {
                 foreach(var gO in _gOs) {
-                    Animator animator = gO.GetComponent<Animator>();
-                    AnimatorController controller = animator.runtimeAnimatorController as AnimatorController;
-                    foreach (var state in controller.layers[animator.GetLayerIndex("Base Layer")].stateMachine.states) {
-                        if(state.state.name.Equals("Tree_OnFire")) {
-                            foreach(var transition in state.state.transitions) {
-                                if(transition.name.Equals("Manipulate This")) {
-                                    transition.exitTime = value;
-                                }
-                            }
-                        }
-                    }
+                    FireSpread spreadable = gO.GetComponent<FireSpread>();
+                    spreadable.spreadTimeGoal = value;
                 }
             }
         }

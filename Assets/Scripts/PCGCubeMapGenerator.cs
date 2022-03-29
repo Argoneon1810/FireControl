@@ -243,56 +243,20 @@ public class PCGCubeMapGenerator : MonoBehaviour {
 
     public void Generate() {
         ValidateValues();
-
-        #region Noise Generation
-        noiseMap = GenerateNoiseMap(_mapChunkSize, _seed, _noiseScale, _octaves, _persistance, _lacunarity, _offset);
-        if(useFalloff) {
-            float minVal = float.MaxValue;
-            float[,] falloffMap = GenerateFalloffMap(_mapChunkSize, _falloffCurve);
-            for(int i = 0; i < mapChunkSize; ++i) {
-                for(int j = 0; j < mapChunkSize; ++j) {
-                    if(_clampFalloff)
-                        noiseMap[i, j] = Mathf.Clamp01(noiseMap[i, j] - falloffMap[i, j]);
-                    else {
-                        noiseMap[i, j] = noiseMap[i, j] - falloffMap[i, j];
-                        if(minVal > noiseMap[i, j]) minVal = noiseMap[i, j];
-                    }
-                }
-            }
-            if(!_clampFalloff)
-                for(int i = 0; i < mapChunkSize; ++i)
-                    for(int j = 0; j < mapChunkSize; ++j)
-                        noiseMap[i, j] -= minVal;
-        }
-        #endregion
+        noiseMap = NoiseGenerator.Generate(_mapChunkSize, _seed, _noiseScale, _octaves, _persistance, _lacunarity, _offset, _useFalloff, _clampFalloff, _falloffCurve);
 
         #region Mesh Generation
         Mesh mesh = GenerateTerrainChunk(noiseMap, _heightMultiplier, _heightGain).CreateMesh();
-        // mesh.uv = ShrinkLeftUV(mesh.uv);
-        //mesh.uv2 = ShrinkRightUV(mesh.uv2);
-        //mesh.uv3 = ShrinkRightUV(mesh.uv3);
         mesh.RecalculateBounds();
         GetComponent<MeshFilter>().sharedMesh = mesh;
         #endregion
 
         #region Texture Generation
         Texture2D mainTexture = CreateTextureByNoiseMap(noiseMap, _colorCurve, _bottomColor, _topColor) as Texture2D;
-        // Texture2D subTexture = new Texture2D(_mapChunkSize, _mapChunkSize);
-        // Color[] colorArray = subTexture.GetPixels();
-        // for(int i = 0; i < colorArray.Length; ++i) {
-        //     colorArray[i] = _bottomColor;
-        // }
-        // subTexture.SetPixels(colorArray);
-        // subTexture.Apply();
-        // Texture2D mergedTexture = MergeTexture(mainTexture, subTexture, _mapChunkSize, _mapChunkSize);
-        // CreateTextureFileIfNecessary(texture);
         #endregion
 
         #region Apply Above to Components
-        // StartCoroutine(OpenTextureFileAndApply(texture));
         GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MainTex", mainTexture);
-        // GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MainTex", mergedTexture);
-        // GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_SubTex", subTexture);
         GetComponent<MeshCollider>().sharedMesh = mesh;
         #endregion
 
@@ -352,70 +316,6 @@ public class PCGCubeMapGenerator : MonoBehaviour {
                 z: z/2f
             );
         else return Vector3.zero;
-    }
-
-    static float[,] GenerateNoiseMap(int mapLength, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset) {
-        float[,] noiseMap = new float[mapLength, mapLength];
-
-        System.Random pRNG = new System.Random(seed);
-        Vector2[] octaveOffsets = new Vector2[octaves];
-        for(int i = 0; i < octaves; ++i) {
-            float offsetX = pRNG.Next(-100000, 100000) + offset.x;
-            float offsetY = pRNG.Next(-100000, 100000) + offset.y;
-            octaveOffsets[i] = new Vector2(offsetX, offsetY);
-        }
-
-        if(scale <= 0)
-            scale = 0.0001f;
-
-        float maxNoiseHeight = float.MinValue;
-        float minNoiseHeight = float.MaxValue;
-
-        float halfLength = mapLength / 2;
-
-        for(int y = 0; y < mapLength; ++y) {
-            for(int x = 0; x < mapLength; ++x) {
-                float frequency, amplitude, noiseHeight;
-                frequency = amplitude = noiseHeight = 1f;
-
-                for(int a = 0; a < octaves; ++a) {
-                    float tempX = (x - halfLength) / scale * frequency + octaveOffsets[a].x;
-                    float tempY = (y - halfLength) / scale * frequency + octaveOffsets[a].y;
-                    
-                    float perlinValue = Mathf.PerlinNoise(tempX, tempY) /* *2-1 is to make perlinvalue bound to -1~1 scale */ * 2 - 1;
-                    noiseHeight += perlinValue * amplitude;
-                    
-                    amplitude *= persistance;
-                    frequency *= lacunarity;
-                }
-
-                if(noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
-                else if(noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
-                noiseMap[x,y] = noiseHeight;
-            }
-        }
-
-        for(int y = 0; y < mapLength; ++y) {
-            for(int x = 0; x < mapLength; ++x) {
-                noiseMap[x,y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x,y]);
-            }
-        }
-
-        return noiseMap;
-    }
-
-    static float[,] GenerateFalloffMap(int size, AnimationCurve falloffCurve) {
-        float[,] map = new float[size,size];
-        for(int i = 0; i < size; ++i) {
-            for(int j = 0; j < size; ++j) {
-                float x = i / (float) size * 2 - 1;
-                float y = j / (float) size * 2 - 1;
-
-                float value = Mathf.Max(Mathf.Abs(x), Mathf.Abs(y));
-                map[i,j] = falloffCurve.Evaluate(value);
-            }
-        }
-        return map;
     }
 
     static Texture CreateTextureByNoiseMap(float[,] heightMap, AnimationCurve colorCurve, Color colorLow, Color colorHigh) {
@@ -487,8 +387,8 @@ public class PCGCubeMapGenerator : MonoBehaviour {
         if(meshData.AddNewUVChannel()) {
             for (int i = 0; i < width; ++i) {
                 int bI = i+width*height;
-                meshData.uvs[1][bI] = new Vector2(i/(float)width, 0);               //bottomface vertex  THERE IS BUG HERE
-                meshData.uvs[1][i]  = new Vector2(i/(float)width, 1);               //topface vertex     THERE IS BUG HERE
+                //meshData.uvs[1][bI] = new Vector2(i/(float)width, 0);
+                //meshData.uvs[1][i]  = new Vector2(i/(float)width, 1);
                 if(i < width-1) {
                     meshData.AddTriangle(bI,                    bI+1,                   i);
                     meshData.AddTriangle(i,                     bI+1,                   i+1);
@@ -501,8 +401,8 @@ public class PCGCubeMapGenerator : MonoBehaviour {
         if(meshData.AddNewUVChannel()) {
             for (int i = 0; i < height; ++i) {
                 int bZ = width*height;
-                meshData.uvs[2][bZ + width*i] = new Vector2(0, i/(float)width);     //bottomface vertex  THERE IS BUG HERE
-                meshData.uvs[2][width*i]      = new Vector2(1, i/(float)width);     //topface vertex     THERE IS BUG HERE
+                //meshData.uvs[2][bZ + width*i] = new Vector2(0, i/(float)width);
+                //meshData.uvs[2][width*i]      = new Vector2(1, i/(float)width);
                 if(i < height-1) {
                     meshData.AddTriangle(bZ+width*i,           width*i,                  bZ+width*(i+1));
                     meshData.AddTriangle(bZ+width*(i+1),       width*i,                  width*(i+1));
