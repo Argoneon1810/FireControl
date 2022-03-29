@@ -78,15 +78,11 @@ public class ThunderDropper : MonoBehaviour {
             }
             //Set Fire to Strikes
             RaycastHit[] hits2 = Physics.SphereCastAll(hits[0].point, fireSpreadRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
-            List<Animator> animList = new List<Animator>();
+            List<FireSpread> spreadables = new List<FireSpread>();
             foreach(var hit in hits2) {
-                if(hit.transform.TryGetComponent<Animator>(out Animator animator)) {
-                    animList.Add(animator);
+                if(hit.transform.TryGetComponent<FireSpread>(out FireSpread spreadable)) {
+                    spreadable.MarkTorched();
                 }
-            }
-            if(animList.Count > 0) {
-                Arsonist.Arson(animList);
-                animList.Clear();
             }
             yield return null;
 

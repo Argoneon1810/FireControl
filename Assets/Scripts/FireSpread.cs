@@ -2,83 +2,74 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Animator))]
 public class FireSpread : MonoBehaviour {
-    [SerializeField] float fireSpreadRadius = 7;
-    [SerializeField] float spreadability = .1f;
-    [SerializeField] float bunnySpawnRate = .1f;
-    [SerializeField] float bunnySpawnRadius = 7;
-    [SerializeField] GameObject BunnyPrefab;
-    const int MAX_TRIAL = 3;
+    private const int MAX_TRIAL = 3;
 
-    [SerializeField] bool debugSpawnBunny;
+    [SerializeField] private float spreadSpherecastRadius = 7;
+    [SerializeField] private float spreadTimeGoal = 5;
+    [SerializeField] private float stochasticSpreadRate = .2f;
+    [SerializeField] private float bunnySpawnRate = .05f;
+    [SerializeField] private float bunnySpawnRadius = 20;
+    [SerializeField] private GameObject BunnyPrefab;
+
+    private bool _bIsOnFire, _bIsBurnt;
+    private Animator mAnimator;
+
+    public bool bIsOnFire {get=>_bIsOnFire;}
+    public bool bIsBurnt {get=>_bIsBurnt;}
+
+    float continuousFlameTime;
+
+    float randSpawnInterval = float.MinValue;
 
     void Start() {
-        StartCoroutine(OnFireWaiter());
+        mAnimator = GetComponent<Animator>();
     }
 
-    void Update()
-    {
-        if(debugSpawnBunny){
-            debugSpawnBunny = false;
-            SpawnBunny();
-        }
-    }
-
-    IEnumerator OnFireWaiter() {
-        while(true) {
-            if(transform.TryGetComponent<Animator>(out Animator animator)) {
-                if(animator.GetCurrentAnimatorStateInfo(animator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_OnFire")) {
-                    StartCoroutine(DoStochasticSpread());
-                    break;
+    void Update() {
+        if(_bIsOnFire) {
+            continuousFlameTime += Time.deltaTime;
+            if(continuousFlameTime > spreadTimeGoal) {
+                MarkDoneBurning();
+                Spread();
+            } else {
+                if(randSpawnInterval < 0) {
+                    randSpawnInterval = Random.Range(1f,3f);
+                    SpawnBunny();
+                    StochasticSpread();
                 }
+                randSpawnInterval -= Time.deltaTime;
             }
-            yield return null;
         }
-        yield return null;
-    }
-
-    IEnumerator DoStochasticSpread() {
-        Animator animator = transform.GetComponent<Animator>();
-        while(animator.GetCurrentAnimatorStateInfo(animator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_OnFire")) {
-            yield return new WaitForSeconds(Random.Range(1f,3f));
-            StochasticSpread();
-            SpawnBunny();
-        }
-        yield return null;
     }
 
     void OnDrawGizmosSelected() {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + Vector3.up * 4, fireSpreadRadius);
+        Gizmos.DrawWireSphere(transform.position + Vector3.up * 4, spreadSpherecastRadius);
     }
 
-    public void Spread() {
-        List<Animator> animList = new List<Animator>();
-        RaycastHit[] hits = Physics.SphereCastAll(transform.position + Vector3.up * 4, fireSpreadRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
+    void Spread() {
+        RaycastHit[] hits = Physics.SphereCastAll(transform.position + Vector3.up * 4, spreadSpherecastRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
         foreach(var hit in hits) {
-            if(hit.transform.TryGetComponent<Animator>(out Animator animator)) {
-                if(animator != GetComponent<Animator>() && animator.GetCurrentAnimatorStateInfo(animator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_Unburnt"))
-                    animList.Add(animator);
+            if(hit.transform.TryGetComponent<FireSpread>(out FireSpread spreadable)) {
+                if(spreadable != this && !spreadable.bIsOnFire && !spreadable.bIsBurnt)
+                    spreadable.MarkTorched();
             }
         }
-        Arsonist.Arson(animList);
-        animList.Clear();
     }
 
     void StochasticSpread() {
-        if(Random.Range(0f, 1f) < spreadability) {
-            RaycastHit[] hits = Physics.SphereCastAll(transform.position + Vector3.up * 4, fireSpreadRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
-            List<Animator> animList = new List<Animator>();
+        if(Random.Range(0f, 1f) < stochasticSpreadRate) {
+            RaycastHit[] hits = Physics.SphereCastAll(transform.position + Vector3.up * 4, spreadSpherecastRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
             int trial = 0;
             while(trial < MAX_TRIAL) {
                 ++trial;
-                if(hits[Random.Range(0, hits.Length)].transform.TryGetComponent<Animator>(out Animator animator)) {
-                    animList.Add(animator);
+                if(hits[Random.Range(0, hits.Length)].transform.TryGetComponent<FireSpread>(out FireSpread spreadable)) {
+                    spreadable.MarkTorched();
                     break;
                 }
             }
-            if(animList.Count > 0) Arsonist.Arson(animList);
-            animList.Clear();
         }
     }
 
@@ -91,5 +82,23 @@ public class FireSpread : MonoBehaviour {
             foreach(var hit in hits)
                 Instantiate(BunnyPrefab, hit.point, Quaternion.identity);
         }
+    }
+
+    public void MarkTorched() {
+        _bIsOnFire = true;
+        mAnimator.SetTrigger("Set Fire");
+    }
+
+    public void MarkExtinguished() {
+        _bIsOnFire = false;
+        if(mAnimator.GetCurrentAnimatorStateInfo(mAnimator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_OnFire"))
+            mAnimator.SetTrigger("Extinguished");
+        continuousFlameTime = 0;
+    }
+
+    void MarkDoneBurning() {
+        _bIsOnFire = false;
+        _bIsOnFire = true;
+        mAnimator.SetTrigger("Done Burning");
     }
 }

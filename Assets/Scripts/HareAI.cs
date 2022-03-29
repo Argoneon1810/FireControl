@@ -68,7 +68,7 @@ public class HareAI : MonoBehaviour {
         Animator animator = collision.gameObject.GetComponent<Animator>();
         if(collision.gameObject.layer == LayerMask.NameToLayer("Flameable") && animator.GetCurrentAnimatorStateInfo(animator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_Unburnt")) {
             Death();
-            Arsonist.ArsonSingle(collision.gameObject.GetComponent<Animator>());
+            collision.gameObject.GetComponent<FireSpread>().MarkTorched();
         }
     }
 

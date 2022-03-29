@@ -30,14 +30,9 @@ public class MeteoBody : MonoBehaviour {
         if(collision.gameObject.layer == LayerMask.NameToLayer("Land")) {
             OnHit?.Invoke();
             RaycastHit[] hits = Physics.SphereCastAll(transform.position, FlameRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
-            List<Animator> animList = new List<Animator>();
             foreach(var hit in hits) {
-                if(hit.transform.TryGetComponent<Animator>(out Animator animator))
-                    animList.Add(animator);
-            }
-            if(animList.Count > 0) {
-                Arsonist.Arson(animList);
-                animList.Clear();
+                if(hit.transform.TryGetComponent<FireSpread>(out FireSpread spreadable))
+                    spreadable.MarkTorched();
             }
             gravityDir = Vector3.down;
             foreach(var crashParticle in crashParticles) {

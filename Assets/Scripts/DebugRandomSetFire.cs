@@ -15,17 +15,16 @@ public class DebugRandomSetFire : MonoBehaviour {
         if(_bFire) {
             _bFire = false;
             bool torched = false;
-            Animator animator;
-            if(placer.gOs[Random.Range(0, placer.gOs.Count-1)].TryGetComponent<Animator>(out animator)) {
-                if(IsUnburnt(animator)) {
-                    Arsonist.ArsonSingle(animator);
+            if(placer.gOs[Random.Range(0, placer.gOs.Count-1)].TryGetComponent<FireSpread>(out FireSpread spreadable)) {
+                if(IsUnburnt(spreadable)) {
+                    spreadable.MarkTorched();
                     torched = true;
                 }
             }
-            if(animator != null && !torched) {
+            if(spreadable != null && !torched) {
                 foreach(var gO in placer.gOs) {
-                    if(IsUnburnt(animator)) {
-                        Arsonist.ArsonSingle(animator);
+                    if(IsUnburnt(spreadable)) {
+                        spreadable.MarkTorched();
                         break;
                     }
                 }
@@ -33,7 +32,7 @@ public class DebugRandomSetFire : MonoBehaviour {
         }
     }
 
-    private bool IsUnburnt(Animator animator) {
-        return animator.GetCurrentAnimatorStateInfo(animator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_Unburnt");
+    private bool IsUnburnt(FireSpread spreadable) {
+        return !spreadable.bIsBurnt && !spreadable.bIsOnFire;
     }
 }

@@ -10,8 +10,8 @@ public class FireControl : MonoBehaviour {
     [SerializeField] float raydistance = 200;
     [SerializeField] float fireSpreadRadius = 7f;
     [SerializeField] float extinguisherRadius = 5f;
-    [SerializeField] GameObject ArsonRangeIndicator, ExtinguishRangeIndicator;
-    [SerializeField] Material ArsonMaterial, ExtinguishMaterial;
+    [SerializeField] GameObject TorchRangeIndicator, ExtinguishRangeIndicator;
+    [SerializeField] Material TorchMaterial, ExtinguishMaterial;
 
     bool bShift = false;
 
@@ -22,12 +22,12 @@ public class FireControl : MonoBehaviour {
     private void Start() {
         inputManager = inputManager ? inputManager : InputManager.Instance;
 
-        if(!ArsonRangeIndicator) {
-            ArsonRangeIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            ArsonRangeIndicator.name = "ArsonRangeIndicator";
-            ArsonRangeIndicator.transform.localScale = new Vector3(fireSpreadRadius, fireSpreadRadius, fireSpreadRadius) * 2;
-            var renderer = ArsonRangeIndicator.GetComponent<MeshRenderer>();
-            renderer.material = ArsonMaterial;
+        if(!TorchRangeIndicator) {
+            TorchRangeIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            TorchRangeIndicator.name = "ArsonRangeIndicator";
+            TorchRangeIndicator.transform.localScale = new Vector3(fireSpreadRadius, fireSpreadRadius, fireSpreadRadius) * 2;
+            var renderer = TorchRangeIndicator.GetComponent<MeshRenderer>();
+            renderer.material = TorchMaterial;
         }
         if(!ExtinguishRangeIndicator) {
             ExtinguishRangeIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -36,7 +36,7 @@ public class FireControl : MonoBehaviour {
             var renderer = ExtinguishRangeIndicator.GetComponent<MeshRenderer>();
             renderer.material = ExtinguishMaterial;
         }
-        ArsonRangeIndicator.SetActive(false);
+        TorchRangeIndicator.SetActive(false);
         ExtinguishRangeIndicator.SetActive(false);
 
         inputManager.OnShift += Shift;
@@ -48,21 +48,21 @@ public class FireControl : MonoBehaviour {
             if(ExtinguishRangeIndicator.activeSelf) 
                 ExtinguishRangeIndicator.SetActive(false);
         } else {
-            if(ArsonRangeIndicator.activeSelf)
-                ArsonRangeIndicator.SetActive(false);
+            if(TorchRangeIndicator.activeSelf)
+                TorchRangeIndicator.SetActive(false);
         }
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(ray, out RaycastHit hit, raydistance, 1 << LayerMask.NameToLayer("Land"))) {
             if(bShift) {
-                ArsonRangeIndicator.SetActive(true);
-                ArsonRangeIndicator.transform.position = hit.point;
+                TorchRangeIndicator.SetActive(true);
+                TorchRangeIndicator.transform.position = hit.point;
             } else {
                 ExtinguishRangeIndicator.SetActive(true);
                 ExtinguishRangeIndicator.transform.position = hit.point;
             }
         } else {
-            ArsonRangeIndicator.SetActive(false);
+            TorchRangeIndicator.SetActive(false);
             ExtinguishRangeIndicator.SetActive(false);
         }
     }
@@ -70,22 +70,18 @@ public class FireControl : MonoBehaviour {
     void Shift(bool toggle) => bShift = toggle;
 
     void Click() {
-        List<Animator> animList = new List<Animator>();
         if(bShift) {
-            RaycastHit[] hits = Physics.SphereCastAll(ArsonRangeIndicator.transform.position, fireSpreadRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
+            RaycastHit[] hits = Physics.SphereCastAll(TorchRangeIndicator.transform.position, fireSpreadRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
             foreach(RaycastHit sHit in hits) {
-                if(sHit.transform.TryGetComponent<Animator>(out Animator animator))
-                    animList.Add(animator);
+                if(sHit.transform.TryGetComponent<FireSpread>(out FireSpread spreadable))
+                    spreadable.MarkTorched();
             }
-            Arsonist.Arson(animList);
         } else {
             RaycastHit[] hits = Physics.SphereCastAll(ExtinguishRangeIndicator.transform.position, extinguisherRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
             foreach(RaycastHit sHit in hits) {
-                if(sHit.transform.TryGetComponent<Animator>(out Animator animator))
-                    animList.Add(animator);
+                if(sHit.transform.TryGetComponent<FireSpread>(out FireSpread spreadable))
+                    spreadable.MarkExtinguished();
             }
-            Extinguisher.Extinguish(animList);
         }
-        animList.Clear();
     }
 }

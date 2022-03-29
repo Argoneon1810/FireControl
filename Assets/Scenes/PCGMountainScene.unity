@@ -2762,6 +2762,7 @@ MonoBehaviour:
   _generator: {fileID: 2021855030}
   debugShootMeteorite: 0
   repeatFor: 3
+  meteoLaunchHeight: 40
   doNotThrow: 1
 --- !u!114 &1436099259
 MonoBehaviour:

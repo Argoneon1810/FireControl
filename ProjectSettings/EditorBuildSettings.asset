@@ -6,9 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/HomeScene.unity
+    guid: f9dc5fc2c6570f84c87e1aa2a62e0d8b
+  - enabled: 1
     path: Assets/Scenes/PCGMountainScene.unity
     guid: 10af703ea72ec4c40b7bf997dc4646e9
-  - enabled: 1
-    path: Assets/Scenes/TerrainMountainScene.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}

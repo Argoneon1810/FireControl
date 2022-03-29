@@ -50,12 +50,10 @@ public class HelicopterExtinguisher : MonoBehaviour {
             if(_waterAmount <= 0) return;
             
             RaycastHit[] hits = Physics.SphereCastAll(ExtinguishRangeIndicator.transform.position, extinguisherRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
-            List<Animator> animList = new List<Animator>();
             foreach(RaycastHit sHit in hits) {
-                if(sHit.transform.TryGetComponent<Animator>(out Animator animator))
-                    animList.Add(animator);
+                if(sHit.transform.TryGetComponent<FireSpread>(out FireSpread spreadable))
+                    spreadable.MarkExtinguished();
             }
-            Extinguisher.Extinguish(animList);
             _waterAmount -= waterConsumption;
         }
     }

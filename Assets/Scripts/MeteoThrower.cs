@@ -16,6 +16,8 @@ public class MeteoThrower : MonoBehaviour {
     [SerializeField] int repeatFor = 1;
     Vector3 size, position;
 
+    [SerializeField] float meteoLaunchHeight = 40f;
+
     public bool doNotThrow = true;
 
     private void Awake() {
@@ -47,7 +49,7 @@ public class MeteoThrower : MonoBehaviour {
             //random angle to enter targeted point
             Vector3 randDir = new Vector3(Random.Range(-1f, 1f), Random.Range(0, 1f), Random.Range(-1f, 1f)).normalized;
             //put meteorite to the position
-            GameObject meteo = Instantiate(meteoPrefab, point + randDir * 200f, Quaternion.Euler(Random.Range(0,360), Random.Range(0,360), Random.Range(0,360)));
+            GameObject meteo = Instantiate(meteoPrefab, point + randDir * meteoLaunchHeight, Quaternion.Euler(Random.Range(0,360), Random.Range(0,360), Random.Range(0,360)));
             //assign travel info
             MeteoBody body = meteo.GetComponent<MeteoBody>();
             body.SetGravity(-randDir);

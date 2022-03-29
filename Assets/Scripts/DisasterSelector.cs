@@ -11,10 +11,13 @@ public class DisasterSelector : MonoBehaviour {
     [SerializeField] Disaster disaster;
     [SerializeField] MeteoThrower thrower;
     [SerializeField] ThundercloudSpawner spawner;
+    [SerializeField] bool bDoNotChangeInspectorDisaster;
 
     private void Awake() {
-        var values = Enum.GetValues(typeof(Disaster));
-        disaster = (Disaster)values.GetValue(UnityEngine.Random.Range(0, values.Length));
+        if(!bDoNotChangeInspectorDisaster) {
+            var values = Enum.GetValues(typeof(Disaster));
+            disaster = (Disaster)values.GetValue(UnityEngine.Random.Range(0, values.Length));
+        }
         switch(disaster) {
             case Disaster.Thunder:
                 thrower.doNotThrow = true;
