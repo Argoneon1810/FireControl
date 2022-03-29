@@ -5649,11 +5649,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbd5ba42279e29a419b3f7545d76ab41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 0
-  searchRadius: 0
-  rotationDuration: 0
-  deathDistance: 0
-  fireParticle: {fileID: 0}
+  movementSpeed: 8
+  searchRadius: 20
+  rotationDuration: 0.5
+  deathDistance: 0.5
+  fireParticle: {fileID: 1193269924106530610}
 --- !u!1 &8443136773155277755
 GameObject:
   m_ObjectHideFlags: 0

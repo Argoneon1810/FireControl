@@ -188,9 +188,9 @@ public class PCGCubeMapGenerator : MonoBehaviour {
     public Vector3 GetPointOnSurface(float x, float z) {
         if(noiseMap != null)
             return new Vector3(
-                x: x/-2f, 
+                x: x - _mapChunkSize/2f,
                 y: noiseMap[Mathf.FloorToInt(x), Mathf.FloorToInt(z)] * _heightMultiplier + _heightGain + baseHeightAdjustment,
-                z: z/2f
+                z: z - _mapChunkSize/2f
             );
         else return Vector3.zero;
     }

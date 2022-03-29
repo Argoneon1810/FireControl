@@ -2749,7 +2749,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0c7c5fe2b0ed2c4a93bae2a2136cfb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  disaster: 0
+  disaster: 1
   thrower: {fileID: 1436099258}
   spawner: {fileID: 1436099260}
   bDoNotChangeInspectorDisaster: 1
@@ -2770,6 +2770,7 @@ MonoBehaviour:
   _generator: {fileID: 2021855030}
   cloudHeight: 40
   numOfCloudPerCall: 2
+  debugSpawnThunderCloud: 0
   doNotSpawn: 1
 --- !u!1 &1518060114
 GameObject:
