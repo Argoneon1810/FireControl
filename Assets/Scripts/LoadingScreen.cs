@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using UnityEngine;
 
 public class LoadingScreen : MonoBehaviour {
@@ -10,13 +10,11 @@ public class LoadingScreen : MonoBehaviour {
 
     bool doneLoading;
     float t = 0;
-    int count = 0;
 
     private void Start() {
         treeMassPlacerOnPCG.PostParentingEvent += FinishLoading;
         if(loadingText.Equals("")) loadingText = loadingTextfield.text;
-        // treeMassPlacerOnPCG.AddOnAddedEvent(TreeSpawned);
-        treeMassPlacerOnPCG.OnTrialSpawn += TreeSpawned;
+        StartCoroutine(WatchTreeSpawnProgress());
     }
 
     void Update() {
@@ -37,24 +35,15 @@ public class LoadingScreen : MonoBehaviour {
     }
     
     void FinishLoading() {
-        loadingCover.SetActive(false);
-        doneLoading = true;
-    }
-
-
-    void TreeSpawned(object sender, EventArgs e) {
-        TreeSpawned();
+        Destroy(loadingCover);
     }
     
-    void TreeSpawned() {
-        ++count;
+    IEnumerator WatchTreeSpawnProgress() {
         float leftOffset;
-        if(!treeMassPlacerOnPCG.IsDone()) {
-            leftOffset = - Screen.width * (count / (float)treeMassPlacerOnPCG.numberOfTree);
+        while(!treeMassPlacerOnPCG.doneSpawn) {
+            leftOffset = -Screen.currentResolution.width * treeMassPlacerOnPCG.spawnProgress;
+            loadingBar.offsetMax = new Vector2(leftOffset, loadingBar.offsetMax.y);
+            yield return null;
         }
-        else
-            leftOffset = 0;
-        
-        loadingBar.offsetMax = new Vector2(leftOffset, loadingBar.offsetMax.y);
     }
 }

@@ -682,7 +682,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 185970559}
-  m_LocalRotation: {x: 0.4207835, y: 0.3406877, z: -0.17429419, w: 0.82249296}
+  m_LocalRotation: {x: 0.4207835, y: 0.34068775, z: -0.17429423, w: 0.82249296}
   m_LocalPosition: {x: -50, y: 113.899284, z: -50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -1177,7 +1177,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &313639667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1918,7 +1918,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1188316057}
-  m_LocalRotation: {x: 0.4207835, y: 0.3406877, z: -0.17429419, w: 0.82249296}
+  m_LocalRotation: {x: 0.4207835, y: 0.34068775, z: -0.17429423, w: 0.82249296}
   m_LocalPosition: {x: -50, y: 113.899284, z: -50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2603,7 +2603,7 @@ MonoBehaviour:
   extinguisherRadius: 5
   TorchRangeIndicator: {fileID: 0}
   ExtinguishRangeIndicator: {fileID: 0}
-  TorchMaterial: {fileID: 0}
+  TorchMaterial: {fileID: 2100000, guid: 499f967bff3e4a6419a7fc5385cfedad, type: 2}
   ExtinguishMaterial: {fileID: 2100000, guid: 92e212ada4308b943aeec853b818cc70, type: 2}
 --- !u!114 &1436099252
 MonoBehaviour:
@@ -3666,7 +3666,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   _topColor: {r: 0, g: 0.6037736, b: 0.01387283, a: 0}
   _bottomColor: {r: 0.6792453, g: 0.30709538, b: 0, a: 0}
-  _sinkHeight: 40
+  _sinkHeight: 45
   _riseDuration: 2
   _riseCurve:
     serializedVersion: 2
@@ -3722,15 +3722,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 541a225df7b1cf549a990c7046c54a1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _treeToSpawn: {fileID: 5714748231040617871, guid: 20087d7f6d102be4abf78c18361c9768, type: 3}
-  _numberOfTree: 200
+  _treePrefab: {fileID: 5714748231040617871, guid: 20087d7f6d102be4abf78c18361c9768, type: 3}
+  _numOfTree: 150
   _maxTrialPerTree: 3
-  _radius: 1
+  _overlapCheckRadius: 7
   _triggerRegen: 0
   _masterSpreadTime: 5
   _offset: {x: 0, y: 0, z: 0}
   runningOrderManager: {fileID: 0}
   _generator: {fileID: 2021855030}
+  doneSpawn: 0
 --- !u!64 &2021855033
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -3834,13 +3835,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038642415}
-  m_LocalRotation: {x: -0.00034129593, y: 0.00048206365, z: -0.00035765624, w: 0.99999976}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 25, y: 25, z: 25}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 15
-  m_LocalEulerAnglesHint: {x: -0.039, y: 0.055, z: -0.041}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2062008061
 GameObject:
   m_ObjectHideFlags: 0

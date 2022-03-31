@@ -12,26 +12,45 @@ public class TreeMassPlacerOnPCG : TreeMassPlacer {
         set => _generator = value;
     }
 
+    private bool bSinkDone;
+
     private void Awake() {
         repeatFor = 1;
         sizes.Add(new Vector3(_generator.mapChunkSize, 100, _generator.mapChunkSize));
         positions.Add(_generator.transform.position);
         offset = new Vector3((_generator.mapChunkSize-1)/-2f, 0, (_generator.mapChunkSize-1)/-2f);
         runningOrderManager = runningOrderManager ? runningOrderManager : RunningOrderManager.Instance;
-        _generator.PostRiseEvent += TempReleaseAllFromMesh;
+        _generator.PostSinkEvent += SinkDone;
+        _generator.PostRiseEvent += DisattachAllFromLandmass;
     }
 
-    private void Start() {
-        runningOrderManager.AddCallbackToCollection(3, Generate);
-        runningOrderManager.AddCallbackToCollection(4, TempAddAllToMesh);
+    public override void Start() {
+        base.Start();
+        runningOrderManager.AddCallbackToCollection(3, WaitForGenerateCall);
+        runningOrderManager.AddCallbackToCollection(4, AttachAllTreeToLandmass);
     }
 
-    void TempAddAllToMesh() {
-        StartCoroutine(DoTempAddAllToMesh());
+    void SinkDone() {
+        bSinkDone = true;
     }
 
-    IEnumerator DoTempAddAllToMesh() {
-        while(!bReadyPrinted) yield return null;
+    void WaitForGenerateCall() {
+        StartCoroutine(GenerateWaiter());
+    }
+
+    IEnumerator GenerateWaiter() {
+        while(!bSinkDone) {
+            yield return null;
+        }
+        Generate();
+    }
+
+    void AttachAllTreeToLandmass() {
+        StartCoroutine(DoAttachAllTreeToLandmass());
+    }
+
+    IEnumerator DoAttachAllTreeToLandmass() {
+        while(!doneSpawn) yield return null;
         foreach(GameObject gO in _gOs) {
             gO.transform.SetParent(_generator.transform);
         }
@@ -39,7 +58,7 @@ public class TreeMassPlacerOnPCG : TreeMassPlacer {
         yield return null;
     }
 
-    void TempReleaseAllFromMesh() {
+    void DisattachAllFromLandmass() {
         foreach(GameObject gO in _gOs) {
             gO.transform.SetParent(null);
         }

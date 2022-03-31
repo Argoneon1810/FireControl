@@ -39,7 +39,7 @@ public class PCGCubeMapGenerator : MonoBehaviour {
 
     float baseHeightAdjustment;
 
-    public event Action PostRiseEvent;
+    public event Action PostSinkEvent, PostRiseEvent;
 
     #region Getter Setter
     public int mapChunkSize {
@@ -196,6 +196,7 @@ public class PCGCubeMapGenerator : MonoBehaviour {
     }
     void Sink() {
         transform.position += Vector3.down * sinkHeight;
+        PostSinkEvent?.Invoke();
     }
 
     void Rise() {

@@ -23,7 +23,6 @@ public class CameraShaker : MonoBehaviour {
     }
 
     void Shake() {
-        print("Called");
         if(ShakeCoroutine != null) StopCoroutine(ShakeCoroutine);
         ShakeCoroutine = DoShake();
         StartCoroutine(ShakeCoroutine);
