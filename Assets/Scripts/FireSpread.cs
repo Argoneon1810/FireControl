@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,6 +25,8 @@ public class FireSpread : MonoBehaviour {
 
     float randSpawnInterval = float.MinValue;
 
+    public event Action OnDoneBurning;
+
     void Start() {
         mAnimator = GetComponent<Animator>();
     }
@@ -36,7 +39,7 @@ public class FireSpread : MonoBehaviour {
                 Spread();
             } else {
                 if(randSpawnInterval < 0) {
-                    randSpawnInterval = Random.Range(1f,3f);
+                    randSpawnInterval = UnityEngine.Random.Range(1f,3f);
                     SpawnBunny();
                     StochasticSpread();
                 }
@@ -61,12 +64,12 @@ public class FireSpread : MonoBehaviour {
     }
 
     void StochasticSpread() {
-        if(Random.Range(0f, 1f) < stochasticSpreadRate) {
+        if(UnityEngine.Random.Range(0f, 1f) < stochasticSpreadRate) {
             RaycastHit[] hits = Physics.SphereCastAll(transform.position + Vector3.up * 4, spreadSpherecastRadius, Vector3.forward, 0, 1 << LayerMask.NameToLayer("Flameable"));
             int trial = 0;
             while(trial < MAX_TRIAL) {
                 ++trial;
-                if(hits[Random.Range(0, hits.Length)].transform.TryGetComponent<FireSpread>(out FireSpread spreadable)) {
+                if(hits[UnityEngine.Random.Range(0, hits.Length)].transform.TryGetComponent<FireSpread>(out FireSpread spreadable)) {
                     spreadable.MarkTorched();
                     break;
                 }
@@ -75,9 +78,9 @@ public class FireSpread : MonoBehaviour {
     }
 
     void SpawnBunny() {
-        if(Random.Range(0f,1f) < bunnySpawnRate) {
-            Vector3 randDir = new Vector3(Random.Range(-bunnySpawnRadius, bunnySpawnRadius), 50, Random.Range(-bunnySpawnRadius, bunnySpawnRadius)).normalized;
-            float randDist = Random.Range(4, bunnySpawnRadius);
+        if(UnityEngine.Random.Range(0f,1f) < bunnySpawnRate) {
+            Vector3 randDir = new Vector3(UnityEngine.Random.Range(-bunnySpawnRadius, bunnySpawnRadius), 50, UnityEngine.Random.Range(-bunnySpawnRadius, bunnySpawnRadius)).normalized;
+            float randDist = UnityEngine.Random.Range(4, bunnySpawnRadius);
             Vector3 randPosition = transform.position + randDir * randDist;
             RaycastHit[] hits = Physics.RaycastAll(randPosition, Vector3.down, 50*2f, 1 << LayerMask.NameToLayer("Land"));
             foreach(RaycastHit hit in hits)
@@ -98,8 +101,11 @@ public class FireSpread : MonoBehaviour {
     }
 
     public void MarkDoneBurning() {
+        if(_bIsBurnt) return;
+        
         _bIsOnFire = false;
-        _bIsOnFire = true;
+        _bIsBurnt = true;
+        OnDoneBurning?.Invoke();
         mAnimator.SetTrigger("Done Burning");
     }
 }

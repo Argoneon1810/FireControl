@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class FireControl : MonoBehaviour {
+public class DebugMouseFireController : MonoBehaviour {
     InputManager inputManager;
 
     Camera mainCamera;

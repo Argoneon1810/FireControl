@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class TreeMassPlacer : MonoBehaviour {
+    #region SerializedFields
     [SerializeField] protected GameObject _treePrefab;
     [SerializeField] protected int _numOfTree;
     [SerializeField] protected int _maxTrialPerTree;
@@ -12,18 +13,17 @@ public abstract class TreeMassPlacer : MonoBehaviour {
     [SerializeField] protected bool _triggerRegen;
     [SerializeField] protected float _masterSpreadTime;
     [SerializeField] protected Vector3 _offset;
+    #endregion
 
+    #region Protected Members
     protected EventfulCollection<GameObject> _gOs = new EventfulCollection<GameObject>();
-    protected int numOfSpawned;
-    protected int numOfFailed;
+    protected int _numOfFailed;
+    protected int _numOfBurnt;
 
     protected int repeatFor;
     protected List<Vector3> sizes = new List<Vector3>();
     protected List<Vector3> positions = new List<Vector3>();
-
-    protected float _spawnProgress;
-
-    public bool doneSpawn;
+    #endregion
     
     #region Getter Setter
     public GameObject treeToSpawn { get => _treePrefab; set => _treePrefab = value; }
@@ -44,22 +44,26 @@ public abstract class TreeMassPlacer : MonoBehaviour {
             }
         }
     }
-    public float spawnProgress { get => _spawnProgress; }
-    public int GetTotalNumberOfTrees() => _gOs.Count;
+    public int numOfBurnt { get => _numOfBurnt;}
     #endregion
     
+    #region EventfulCollection Events Adder
     public void AddOnAddedEvent(EventHandler e) => _gOs.OnAdded += e;
     public void AddOnRemovedEvent(EventHandler e) => _gOs.OnRemoved += e;
     public void AddOnClearEvent(EventHandler e) => _gOs.OnClear += e;
+    #endregion
+
+    #region Expression-body members
+    public int numOfSpawned => _gOs.Count;
+    public float spawnProgress => _gOs.Count / ((float) _numOfTree - _numOfFailed);
+    #endregion
+    
+    public bool doneSpawn;
 
     public void Generate() {
         for(int i = 0; i < repeatFor; ++i) {
             StartCoroutine(GenerateTrees(i));
         }
-    }
-
-    public virtual void Start() {
-        StartCoroutine(CompletionCounter());
     }
 
     void Update() {
@@ -70,8 +74,8 @@ public abstract class TreeMassPlacer : MonoBehaviour {
 
     void RegenerateTrees() {
         _triggerRegen = false;
-        numOfSpawned = 0;
-        numOfFailed = 0;
+        _numOfFailed = 0;
+        _numOfBurnt = 0;
         ClearOldTrees();
         for(int i = 0; i < repeatFor; ++i) {
             StartCoroutine(GenerateTrees(i));
@@ -107,11 +111,11 @@ public abstract class TreeMassPlacer : MonoBehaviour {
                     }
 
                     if(validSpawn) {
-                        ++numOfSpawned;
                         _gOs.Add(gO);
+                        gO.GetComponent<FireSpread>().OnDoneBurning += BurningCounter;
                         yield return null;
                     } else {
-                        ++numOfFailed;
+                        ++_numOfFailed;
                         Destroy(gO);
                         yield return null;
                     }
@@ -119,16 +123,9 @@ public abstract class TreeMassPlacer : MonoBehaviour {
                 }
             }
         }
+        doneSpawn = true;
         yield return null;
     }
 
-    IEnumerator CompletionCounter() {
-        int maxTreeCount = _numOfTree;
-        while(numOfSpawned < maxTreeCount) {
-            maxTreeCount = _numOfTree - numOfFailed;
-            _spawnProgress = numOfSpawned / (float) maxTreeCount;
-            yield return null;
-        }
-        doneSpawn = true;
-    }
+    void BurningCounter() { ++_numOfBurnt; }
 }

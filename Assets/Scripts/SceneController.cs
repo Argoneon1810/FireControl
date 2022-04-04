@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SceneConteroller : MonoBehaviour {
-    public static SceneConteroller Instance;
+public class SceneController : MonoBehaviour {
+    public static SceneController Instance;
 
     void Start() {
         Instance = Instance ? Instance : this;

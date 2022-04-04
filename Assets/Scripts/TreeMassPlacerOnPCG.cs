@@ -24,10 +24,9 @@ public class TreeMassPlacerOnPCG : TreeMassPlacer {
         _generator.PostRiseEvent += DisattachAllFromLandmass;
     }
 
-    public override void Start() {
-        base.Start();
+    public void Start() {
         runningOrderManager.AddCallbackToCollection(3, WaitForGenerateCall);
-        runningOrderManager.AddCallbackToCollection(4, AttachAllTreeToLandmass);
+        runningOrderManager.AddCallbackToCollection(4, WaitAttachAllTreeToLandmass);
     }
 
     void SinkDone() {
@@ -35,21 +34,21 @@ public class TreeMassPlacerOnPCG : TreeMassPlacer {
     }
 
     void WaitForGenerateCall() {
-        StartCoroutine(GenerateWaiter());
+        StartCoroutine(GenerateCallWaiter());
     }
 
-    IEnumerator GenerateWaiter() {
+    IEnumerator GenerateCallWaiter() {
         while(!bSinkDone) {
             yield return null;
         }
         Generate();
     }
 
-    void AttachAllTreeToLandmass() {
-        StartCoroutine(DoAttachAllTreeToLandmass());
+    void WaitAttachAllTreeToLandmass() {
+        StartCoroutine(TreeAttachCallWaiter());
     }
 
-    IEnumerator DoAttachAllTreeToLandmass() {
+    IEnumerator TreeAttachCallWaiter() {
         while(!doneSpawn) yield return null;
         foreach(GameObject gO in _gOs) {
             gO.transform.SetParent(_generator.transform);
