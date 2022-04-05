@@ -164,15 +164,19 @@ public class PCGCubeMapGenerator : MonoBehaviour {
     public void Generate() {
         ValidateValues();
         noiseMap = NoiseGenerator.Generate(_mapChunkSize, _seed, _noiseScale, _octaves, _persistance, _lacunarity, _offset, _useFalloff, _clampFalloff, _falloffCurve);
-
-        Mesh mesh = MeshGenerator.GenerateTerrainChunk(noiseMap, _heightMultiplier, _heightGain).CreateMesh();
-        mesh.RecalculateBounds();
-
+        MeshGenerator.MeshData[] meshes = MeshGenerator.GenerateTerrainChunk(noiseMap, _heightMultiplier, _heightGain);
         Texture2D mainTexture = TextureGenerator.CreateTextureByNoiseMap(noiseMap, _colorCurve, _bottomColor, _topColor) as Texture2D;
 
-        GetComponent<MeshFilter>().sharedMesh = mesh;
-        GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MainTex", mainTexture);
-        GetComponent<MeshCollider>().sharedMesh = mesh;
+        GameObject[] temporaryObjects = new GameObject[meshes.Length];
+        for(int i = 0; i < temporaryObjects.Length; ++i) {
+            temporaryObjects[i] = new GameObject();
+            temporaryObjects[i].AddComponent<MeshFilter>().mesh = meshes[i].CreateMesh();
+            temporaryObjects[i].AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
+            temporaryObjects[i].isStatic = true;
+        }
+        CombineMeshesAndTextures.Combine(temporaryObjects, gameObject);
+        
+        GetComponent<MeshCollider>().sharedMesh = GetComponent<MeshFilter>().mesh;
 
         if(_matchTransformScaleToNoiseTexture)
             transform.localScale = new Vector3(_mapChunkSize, 1, _mapChunkSize);
