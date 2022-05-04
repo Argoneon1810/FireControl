@@ -19,6 +19,8 @@ public abstract class TreeMassPlacer : MonoBehaviour {
     protected EventfulCollection<GameObject> _gOs = new EventfulCollection<GameObject>();
     protected int _numOfFailed;
     protected int _numOfBurnt;
+    protected int _numOfExtinguished;
+    protected int _numOfBurning;
 
     protected int repeatFor;
     protected List<Vector3> sizes = new List<Vector3>();
@@ -45,6 +47,8 @@ public abstract class TreeMassPlacer : MonoBehaviour {
         }
     }
     public int numOfBurnt { get => _numOfBurnt;}
+    public int numOfBurning { get => _numOfBurning;}
+    public int numOfExtinguished { get => _numOfExtinguished;}
     #endregion
     
     #region EventfulCollection Events Adder
@@ -112,7 +116,9 @@ public abstract class TreeMassPlacer : MonoBehaviour {
 
                     if(validSpawn) {
                         _gOs.Add(gO);
-                        gO.GetComponent<FireSpread>().OnDoneBurning += BurningCounter;
+                        gO.GetComponent<FireSpread>().OnCatchFire += BurningCounter;
+                        gO.GetComponent<FireSpread>().OnDoneBurning += BurntCounter;
+                        gO.GetComponent<FireSpread>().OnExtinguished += ExtinguishedCounter;
                         yield return null;
                     } else {
                         ++_numOfFailed;
@@ -127,5 +133,7 @@ public abstract class TreeMassPlacer : MonoBehaviour {
         yield return null;
     }
 
-    void BurningCounter() { ++_numOfBurnt; }
+    void BurntCounter() { ++_numOfBurnt; }
+    void BurningCounter() { ++_numOfBurning; }
+    void ExtinguishedCounter() { ++_numOfExtinguished; }
 }

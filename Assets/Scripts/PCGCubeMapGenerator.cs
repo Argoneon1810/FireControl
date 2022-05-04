@@ -164,13 +164,6 @@ public class PCGCubeMapGenerator : MonoBehaviour {
         Texture2D mainTexture = TextureGenerator.CreateTextureByNoiseMap(noiseMap, _colorCurve, _bottomColor, _topColor);
         Texture2D subTexture = TextureGenerator.CreateTextureMonoColor(noiseMap.GetLength(0), noiseMap.GetLength(1), _bottomColor);
 
-        //FOR DEBUG!!! MUST NOT BUILD WITH THESE THINGS BELOW!!
-        // var gOMain = GameObject.Find("texture test main");
-        // var gOSub = GameObject.Find("texture test sub");
-        // gOMain.GetComponent<Renderer>().sharedMaterial.mainTexture = mainTexture;
-        // gOSub.GetComponent<Renderer>().sharedMaterial.mainTexture = subTexture;
-        //FOR DEBUG!!! MUST NOT BUILD WITH THESE THINGS ABOVE!!
-
         GameObject[] temporaryObjects = new GameObject[meshes.Length];
         for(int i = 0; i < temporaryObjects.Length; ++i) {
             temporaryObjects[i] = new GameObject();

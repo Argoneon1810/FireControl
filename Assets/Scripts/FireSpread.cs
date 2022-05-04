@@ -26,6 +26,8 @@ public class FireSpread : MonoBehaviour {
     float randSpawnInterval = float.MinValue;
 
     public event Action OnDoneBurning;
+    public event Action OnCatchFire;
+    public event Action OnExtinguished;
 
     void Start() {
         mAnimator = GetComponent<Animator>();
@@ -90,13 +92,19 @@ public class FireSpread : MonoBehaviour {
 
     public void MarkTorched() {
         _bIsOnFire = true;
-        mAnimator.SetTrigger("Set Fire");
+        if(mAnimator.GetCurrentAnimatorStateInfo(mAnimator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_Unburnt")) {
+            mAnimator.SetTrigger("Set Fire");
+            OnCatchFire?.Invoke();
+        }
     }
 
     public void MarkExtinguished() {
         _bIsOnFire = false;
-        if(mAnimator.GetCurrentAnimatorStateInfo(mAnimator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_OnFire"))
+        if(mAnimator.GetCurrentAnimatorStateInfo(mAnimator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_OnFire")) {
             mAnimator.SetTrigger("Extinguished");
+            mAnimator.SetBool("Set Fire", false);   //unneccesary, but just in case
+            OnExtinguished?.Invoke();
+        }
         continuousFlameTime = 0;
     }
 
