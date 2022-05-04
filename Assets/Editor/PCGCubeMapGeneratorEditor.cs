@@ -130,7 +130,6 @@ public class PCGCubeMapGeneratorEditor : Editor {
 
         if(changed) {
             changed = false;
-            script.changed = true;
             if(script.autoUpdate) {
                 script.Generate();
             }

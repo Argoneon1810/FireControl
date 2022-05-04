@@ -1,7 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeshGenerator {
+public static class MeshGenerator {
+    public const int TOP_INDEX       = 0;
+    public const int BOTTOM_INDEX    = 1;
+    public const int LEFT_INDEX      = 2;
+    public const int RIGHT_INDEX     = 3;
+    public const int FRONT_INDEX     = 4;
+    public const int BACK_INDEX      = 5;
+    
     public class MeshData {
         public Vector3[] vertices;
         public int[] triangles;
@@ -101,27 +108,27 @@ public class MeshGenerator {
                 ++vertexIndex;
             }
         }
-        //MeshData frontMeshData = new MeshData(width, height);
-        //MeshData backMeshData = new MeshData(width, height);
-        //vertexIndex = 0;
-        //for(int z = 0; z < 2; ++z) {    //2 as there is only two layers in vertical axis
-        //    for(int x = 0; x < height; ++x) {
-        //        frontMeshData.vertices[vertexIndex] = z==0 ? bottomMeshData.vertices[height*x] : topMeshData.vertices[height*x];
-        //        backMeshData .vertices[vertexIndex] = z==0 ? bottomMeshData.vertices[height*x + (width-1)*height] : topMeshData.vertices[height*x + (width-1)*height];
-//
-        //        frontMeshData.uvs[vertexIndex] = new Vector2((x/(float)width), z/(float)height);
-        //        backMeshData .uvs[vertexIndex] = new Vector2((x/(float)width), z/(float)height);
-//
-        //        if(x < width-1 && z < 1) {
-        //            frontMeshData.AddTriangle(vertexIndex,        vertexIndex+height, vertexIndex+1);
-        //            frontMeshData.AddTriangle(vertexIndex+1,      vertexIndex+height, vertexIndex+height+1);
-        //            backMeshData .AddTriangle(vertexIndex,        vertexIndex+1,      vertexIndex+height);
-        //            backMeshData .AddTriangle(vertexIndex+height, vertexIndex+1,      vertexIndex+height+1);
-        //        }
-//
-        //        ++vertexIndex;
-        //    }
-        //}
+
+        MeshData frontMeshData = new MeshData(width, height);
+        MeshData backMeshData = new MeshData(width, height);
+        for(int z = 0; z < 2; ++z) {    //2 as there is only two layers in vertical axis
+           for(int x = 0; x < height; ++x) {
+               frontMeshData.vertices[vertexIndex] = z==0 ? bottomMeshData.vertices[height*x] : topMeshData.vertices[height*x];
+               backMeshData .vertices[vertexIndex] = z==0 ? bottomMeshData.vertices[height*x + (width-1)] : topMeshData.vertices[height*x + (width-1)];
+
+               frontMeshData.uvs[vertexIndex] = new Vector2((x/(float)width), z/(float)height);
+               backMeshData .uvs[vertexIndex] = new Vector2((x/(float)width), z/(float)height);
+
+               if(x < width-1 && z < 1) {
+                   frontMeshData.AddTriangle(vertexIndex,        vertexIndex+height,   vertexIndex+1);
+                   frontMeshData.AddTriangle(vertexIndex+1,      vertexIndex+height,   vertexIndex+height+1);
+                   backMeshData .AddTriangle(vertexIndex,        vertexIndex+1,      vertexIndex+height);
+                   backMeshData .AddTriangle(vertexIndex+height, vertexIndex+1,      vertexIndex+height+1);
+               }
+
+               ++vertexIndex;
+           }
+        }
 
         //MeshData[] meshes = new MeshData[]{topperMeshData, bottomMeshData, leftMeshData, rightMeshData, frontMeshData, backMeshData};
         //CombineInstance[] combine = new CombineInstance[meshes.Length];
@@ -132,7 +139,7 @@ public class MeshGenerator {
         //Mesh resultMesh = new Mesh();
         //resultMesh.CombineMeshes(combine);
 
-        return new MeshData[]{topMeshData, bottomMeshData, leftMeshData, rightMeshData};//, frontMeshData, bottomMeshData};
+        return new MeshData[]{topMeshData, bottomMeshData, leftMeshData, rightMeshData, frontMeshData, backMeshData};
     }
 
 }

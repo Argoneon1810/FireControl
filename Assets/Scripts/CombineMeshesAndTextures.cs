@@ -20,11 +20,11 @@ public class CombineMeshesAndTextures : MonoBehaviour {
         if (objectsToCombine.Length > 1) {
             //Assure each renderer contains mainTexture
             foreach(GameObject gO in objectsToCombine) {
-                if(!gO.GetComponent<Renderer>().material.mainTexture)
-                    gO.GetComponent<Renderer>().material.mainTexture = new Texture2D(256, 256);
+                if(!gO.GetComponent<Renderer>().sharedMaterial.mainTexture)
+                    gO.GetComponent<Renderer>().sharedMaterial.mainTexture = new Texture2D(256, 256);
             }
 
-            originalSize = objectsToCombine[0].GetComponent<Renderer>().material.mainTexture.width;
+            originalSize = objectsToCombine[0].GetComponent<Renderer>().sharedMaterial.mainTexture.width;
             pow2 = GetTextureSize(objectsToCombine);
             size =  pow2 * originalSize;
             combinedTexture = new Texture2D(size, size, textureFormat, useMipMaps);
@@ -32,23 +32,23 @@ public class CombineMeshesAndTextures : MonoBehaviour {
             // Create the combined texture (remember to ensure the total size of the texture isn't
             // larger than the platform supports)
             for (int i = 0; i < objectsToCombine.Length; i++) {
-                texture = (Texture2D)objectsToCombine[i].GetComponent<Renderer>().material.mainTexture;
+                texture = (Texture2D)objectsToCombine[i].GetComponent<Renderer>().sharedMaterial.mainTexture;
                 if (!textureAtlas.ContainsKey(texture)) {
                     combinedTexture.SetPixels((i % pow2) * originalSize, (i / pow2) * originalSize, originalSize, originalSize, texture.GetPixels());
                     textureAtlas.Add(texture, new Vector2(i % pow2, i / pow2));
                 }
             }
             combinedTexture.Apply();
-            material = new Material(objectsToCombine[0].GetComponent<Renderer>().material);
+            material = new Material(objectsToCombine[0].GetComponent<Renderer>().sharedMaterial);
             material.mainTexture = combinedTexture;
            
             // Update texture co-ords for each mesh (this will only work for meshes with coords betwen 0 and 1).
             for (int i = 0; i < objectsToCombine.Length; i++) {            
-                mesh = objectsToCombine[i].GetComponent<MeshFilter>().mesh;
+                mesh = objectsToCombine[i].GetComponent<MeshFilter>().sharedMesh;
                 Vector2[] uv = new Vector2[mesh.uv.Length];
                 Vector2 offset;
-                if (textureAtlas.ContainsKey(objectsToCombine[i].GetComponent<Renderer>().material.mainTexture)){
-                    offset = (Vector2)textureAtlas[objectsToCombine[i].GetComponent<Renderer>().material.mainTexture];
+                if (textureAtlas.ContainsKey(objectsToCombine[i].GetComponent<Renderer>().sharedMaterial.mainTexture)){
+                    offset = (Vector2)textureAtlas[objectsToCombine[i].GetComponent<Renderer>().sharedMaterial.mainTexture];
                     for (int u = 0; u < mesh.uv.Length;u++) {
                         uv[u] = mesh.uv[u] / (float)pow2;
                         uv[u].x += ((float)offset.x) / (float)pow2;
@@ -68,7 +68,7 @@ public class CombineMeshesAndTextures : MonoBehaviour {
             for ( int i = 0; i < objectsToCombine.Length; i++){
                 if (objectsToCombine[i].isStatic) {
                     staticCount++;
-                    combine[i].mesh = objectsToCombine[i].GetComponent<MeshFilter>().mesh;
+                    combine[i].mesh = objectsToCombine[i].GetComponent<MeshFilter>().sharedMesh;
                     combine[i].transform = objectsToCombine[i].transform.localToWorldMatrix;               
                 }
             }
@@ -77,14 +77,14 @@ public class CombineMeshesAndTextures : MonoBehaviour {
             if (staticCount > 1) {
                 MeshFilter filter = applyTo.GetComponent<MeshFilter>();
                 MeshRenderer renderer = applyTo.GetComponent<MeshRenderer>();           
-                filter.mesh = new Mesh();
-                filter.mesh.CombineMeshes(combine);
+                filter.sharedMesh = new Mesh();
+                filter.sharedMesh.CombineMeshes(combine);
                 renderer.material = material;
                
                 // Disable all the static object renderers
                 for (int i = 0; i < objectsToCombine.Length; i++){
                     if (deleteOriginals) {
-                        Destroy(objectsToCombine[i]);
+                        DestroyImmediate(objectsToCombine[i]);
                     } else if (objectsToCombine[i].isStatic) {
                         objectsToCombine[i].GetComponent<MeshFilter>().mesh = null;
                         objectsToCombine[i].GetComponent<Renderer>().material = null;
@@ -101,8 +101,8 @@ public class CombineMeshesAndTextures : MonoBehaviour {
         ArrayList textures = new ArrayList();
         // Find unique textures
         for (int i = 0; i < o.Length; i++) {
-            if (!textures.Contains(o[i].GetComponent<Renderer>().material.mainTexture)) {
-                textures.Add(o[i].GetComponent<Renderer>().material.mainTexture);
+            if (!textures.Contains(o[i].GetComponent<Renderer>().sharedMaterial.mainTexture)) {
+                textures.Add(o[i].GetComponent<Renderer>().sharedMaterial.mainTexture);
             }
         }
         if (textures.Count == 1) return 1;
