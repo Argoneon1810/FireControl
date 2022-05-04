@@ -14559,12 +14559,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aedc49ec04cf3af4b8498105a0efcac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireSpreadRadius: 7
-  spreadability: 0.2
+  spreadSpherecastRadius: 7
+  _spreadTimeGoal: 5
+  stochasticSpreadRate: 0.2
   bunnySpawnRate: 0.02
   bunnySpawnRadius: 20
   BunnyPrefab: {fileID: 8443136773155277753, guid: 3e1c20f3d053047468d1d1d65bf8eca3, type: 3}
-  debugSpawnBunny: 0
 --- !u!64 &7809991616145466793
 MeshCollider:
   m_ObjectHideFlags: 0

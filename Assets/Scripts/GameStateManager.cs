@@ -12,10 +12,11 @@ public class GameStateManager : MonoBehaviour {
 
         visualizer.VisualizeScore(currentAliveCount, supposedAliveCount);
 
-        if(currentAliveCount/(float)supposedAliveCount < .5f) GameOver();
+        if(currentAliveCount/(float)supposedAliveCount < .3f) GameOver();
     }
 
     void GameOver() {
-        print("GameOver");
+        // print("GameOver");
+        SceneController.Instance.GoToSceneByName("GameOverScene");
     }
 }

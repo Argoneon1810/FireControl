@@ -34,7 +34,7 @@ public class PCGCubeMapGenerator : MonoBehaviour {
 
     InputManager inputManager;
     RunningOrderManager runningOrderManager;
-    TreeMassPlacerOnPCG _treeMassPlacerOnPCG;
+    [SerializeField] TreeMassPlacerOnPCG _treeMassPlacerOnPCG;
 
     #region Getter Setter
     public int mapChunkSize {

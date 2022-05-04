@@ -41,6 +41,7 @@ public class TreeMassPlacerOnPCG : TreeMassPlacer {
         while(!bSinkDone) {
             yield return null;
         }
+        yield return new WaitForSeconds(.1f);   // TODO : Dunno why but when I come in to PCG scene from home scene, first few trees generates before sink is done
         Generate();
     }
 

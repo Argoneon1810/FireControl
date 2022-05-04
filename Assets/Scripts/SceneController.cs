@@ -7,8 +7,15 @@ public class SceneController : MonoBehaviour {
     public static SceneController Instance;
 
     void Start() {
-        Instance = Instance ? Instance : this;
+        if(Instance) {
+            Destroy(Instance.gameObject);
+        }
+        Instance = this;
         DontDestroyOnLoad(this);
+    }
+
+    public void SetAsTemporary() {
+        
     }
 
     public void GoToSceneByName(string name) {

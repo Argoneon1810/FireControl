@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PCGMountainScene.unity
     guid: 10af703ea72ec4c40b7bf997dc4646e9
+  - enabled: 1
+    path: Assets/Scenes/GameOverScene.unity
+    guid: 251a761edddf2f14a93b7553fe1d68a7
   m_configObjects: {}
