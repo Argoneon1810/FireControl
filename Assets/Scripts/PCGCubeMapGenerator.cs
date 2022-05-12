@@ -12,7 +12,6 @@ public class PCGCubeMapGenerator : MonoBehaviour {
     [SerializeField] float _noiseScale = 10f, _persistance = .5f, _lacunarity = 2;
     [SerializeField] int _octaves = 4, _seed;
     [SerializeField] bool _autoUpdate;
-    [SerializeField] bool _matchTransformScaleToNoiseTexture;
     float[,] noiseMapUsedForLastestGeneration;
     #endregion
     #region Fields for mesh generation
@@ -76,10 +75,6 @@ public class PCGCubeMapGenerator : MonoBehaviour {
     public bool autoUpdate {
         get => _autoUpdate;
         set => _autoUpdate = value;
-    }
-    public bool matchTransformScaleToNoiseTexture {
-        get => _matchTransformScaleToNoiseTexture;
-        set => _matchTransformScaleToNoiseTexture = value;
     }
     public bool useFalloff {
         get => _useFalloff;
@@ -157,45 +152,91 @@ public class PCGCubeMapGenerator : MonoBehaviour {
     }
 
     public void Generate() {
-        ValidateValues();
-
-        float[,] noiseMap = NoiseGenerator.Generate(_mapChunkSize, _seed, _noiseScale, _octaves, _persistance, _lacunarity, _offset, _useFalloff, _clampFalloff, _edgeFalloffCurve);
-        MeshGenerator.MeshData[] meshes = MeshGenerator.GenerateTerrainChunk(noiseMap, _heightMultiplier, _heightGain);
-        Texture2D mainTexture = TextureGenerator.CreateTextureByNoiseMap(noiseMap, _colorCurve, _bottomColor, _topColor);
-        Texture2D subTexture = TextureGenerator.CreateTextureMonoColor(noiseMap.GetLength(0), noiseMap.GetLength(1), _bottomColor);
-
-        GameObject[] temporaryObjects = new GameObject[meshes.Length];
-        for(int i = 0; i < temporaryObjects.Length; ++i) {
-            temporaryObjects[i] = new GameObject();
-            temporaryObjects[i].AddComponent<MeshFilter>().mesh = meshes[i].CreateMesh();
-            temporaryObjects[i].AddComponent<MeshRenderer>().sharedMaterial = Instantiate(GetComponent<MeshRenderer>().sharedMaterial);
-
-            if(i == MeshGenerator.TOP_INDEX) temporaryObjects[i].GetComponent<MeshRenderer>().sharedMaterial.mainTexture = mainTexture;
-            else temporaryObjects[i].GetComponent<MeshRenderer>().sharedMaterial.mainTexture = subTexture;
-            
-            temporaryObjects[i].isStatic = true;
-        }
-        CombineMeshesAndTextures.Combine(temporaryObjects, gameObject);
+        ValidateInitialValues();
         
-        GetComponent<MeshCollider>().sharedMesh = GetComponent<MeshFilter>().sharedMesh;
+        float[,] noiseMap = CreateNoiseForSurfaceGeneration();
 
-        if(_matchTransformScaleToNoiseTexture)
-            transform.localScale = new Vector3(_mapChunkSize, 1, _mapChunkSize);
+        MeshGenerator.MeshData[] meshes = MeshGenerator.GenerateTerrainChunk(
+            noiseMap,
+            _heightMultiplier,
+            _heightGain
+        );
+        Texture2D topSurfaceTexture = TextureGenerator.CreateTextureByNoiseMap(
+            noiseMap,
+            _colorCurve,
+            _bottomColor,
+            _topColor
+        );
+        Texture2D otherSurfaceTexture = TextureGenerator.CreateTextureMonoColor(
+            noiseMap.GetLength(0),
+            noiseMap.GetLength(1),
+            _bottomColor
+        );
+
+        GameObject[] tempPCGMeshGameObjects = ConvertPCGMeshesIntoGameObjects(meshes);
+        ApplyTextureToTemporaryGameObjects(tempPCGMeshGameObjects, topSurfaceTexture, otherSurfaceTexture);
+        MergePCGMeshesToSelf(tempPCGMeshGameObjects);
+        DeleteTemporaryMeshes(tempPCGMeshGameObjects);
+
         noiseMapUsedForLastestGeneration = noiseMap;
     }
 
-    private void ValidateValues() {
+    private float[,] CreateNoiseForSurfaceGeneration() {
+        NoiseGenerator.Noise mPerlinNoise
+            = NoiseGenerator.CreatePerlinNoise(_mapChunkSize, _seed, _noiseScale, _octaves, _persistance, _lacunarity, _offset);
+        if(_useFalloff) {
+            if(_clampFalloff)
+                mPerlinNoise.ApplySecondNoise(NoiseGenerator.GenerateFalloff(_mapChunkSize, _edgeFalloffCurve));
+            else
+                mPerlinNoise.ApplySecondNoiseUnclamped(NoiseGenerator.GenerateFalloff(_mapChunkSize, _edgeFalloffCurve));
+        }
+        return mPerlinNoise.Generate();
+    }
+
+    private void ValidateInitialValues() {
         if(_mapChunkSize <= 0) _mapChunkSize = 1;
         if(_lacunarity < 1) _lacunarity = 1;
         if(_octaves < 0) _octaves = 0;
         if(_octaves > 28) _octaves = 28;
     }
 
+    private GameObject[] ConvertPCGMeshesIntoGameObjects(MeshGenerator.MeshData[] meshes) {
+        GameObject[] toReturnGameObjects = new GameObject[meshes.Length];
+        for(int i = 0; i < toReturnGameObjects.Length; ++i) {
+            toReturnGameObjects[i] = new GameObject();
+            toReturnGameObjects[i].AddComponent<MeshFilter>().mesh = meshes[i].CreateMesh();
+            toReturnGameObjects[i].AddComponent<MeshRenderer>().sharedMaterial = Instantiate(GetComponent<MeshRenderer>().sharedMaterial);
+            toReturnGameObjects[i].tag = "TemporaryMesh";   //just in case
+        }
+        return toReturnGameObjects;
+    }
+
+    private void ApplyTextureToTemporaryGameObjects(GameObject[] tempPCGMeshGameObjects, Texture2D topSurfaceTexture, Texture2D otherSurfaceTexture) {
+        for(int i = 0; i < tempPCGMeshGameObjects.Length; ++i) {
+            if(i == MeshGenerator.TOP_INDEX)
+                tempPCGMeshGameObjects[i].GetComponent<MeshRenderer>().sharedMaterial.mainTexture = topSurfaceTexture;
+            else 
+                tempPCGMeshGameObjects[i].GetComponent<MeshRenderer>().sharedMaterial.mainTexture = otherSurfaceTexture;
+        }
+    }
+
+    private void MergePCGMeshesToSelf(GameObject[] tempPCGMeshGameObjects) {
+        CombineMeshesAndTextures.Combine(tempPCGMeshGameObjects, gameObject);
+        GetComponent<MeshCollider>().sharedMesh = GetComponent<MeshFilter>().sharedMesh;
+    }
+
+    private void DeleteTemporaryMeshes(GameObject[] tempPCGMeshGameObjects) {
+        foreach(GameObject gO in tempPCGMeshGameObjects) {
+            DestroyImmediate(gO);
+        }
+    }
+
     public Vector3 GetPointOnSurface(float x, float z) {
         if(noiseMapUsedForLastestGeneration != null)
             return new Vector3(
                 x: x - _mapChunkSize/2f,
-                y: noiseMapUsedForLastestGeneration[Mathf.FloorToInt(x), Mathf.FloorToInt(z)] * _heightMultiplier + _heightGain + heightAdjustmentMadeInEditorMode,
+                y: noiseMapUsedForLastestGeneration[Mathf.FloorToInt(x), Mathf.FloorToInt(z)]
+                    * _heightMultiplier + _heightGain + heightAdjustmentMadeInEditorMode,
                 z: z - _mapChunkSize/2f
             );
         else return Vector3.zero;

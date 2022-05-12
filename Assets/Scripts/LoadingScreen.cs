@@ -16,6 +16,19 @@ public class LoadingScreen : MonoBehaviour {
         if(loadingText.Equals("")) loadingText = loadingTextfield.text;
         StartCoroutine(WatchTreeSpawnProgress());
     }
+    
+    IEnumerator WatchTreeSpawnProgress() {
+        float leftOffset;
+        while(!treeMassPlacerOnPCG.doneSpawn) {
+            leftOffset = -Screen.currentResolution.width * treeMassPlacerOnPCG.spawnProgress;
+            loadingBar.offsetMax = new Vector2(leftOffset, loadingBar.offsetMax.y);
+            yield return null;
+        }
+    }
+    
+    void FinishLoading() {
+        Destroy(loadingCover);
+    }
 
     void Update() {
         if(!doneLoading) {
@@ -31,19 +44,6 @@ public class LoadingScreen : MonoBehaviour {
                     loadingTextfield.text = loadingText + "...";
                     break;
             }
-        }
-    }
-    
-    void FinishLoading() {
-        Destroy(loadingCover);
-    }
-    
-    IEnumerator WatchTreeSpawnProgress() {
-        float leftOffset;
-        while(!treeMassPlacerOnPCG.doneSpawn) {
-            leftOffset = -Screen.currentResolution.width * treeMassPlacerOnPCG.spawnProgress;
-            loadingBar.offsetMax = new Vector2(leftOffset, loadingBar.offsetMax.y);
-            yield return null;
         }
     }
 }

@@ -42,8 +42,6 @@ public class PCGCubeMapGeneratorEditor : Editor {
             GUILayout.Space(10);
 
             script.mapChunkSize  = EditorGUILayout.IntField("Noisemap Resolution", script.mapChunkSize);
-            script.matchTransformScaleToNoiseTexture
-                                 = EditorGUILayout.Toggle("Match Transform Scale to NoiseTexture", script.matchTransformScaleToNoiseTexture);
 
             GUILayout.Space(10);
 
