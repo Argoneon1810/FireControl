@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class TreeMassPlacer : MonoBehaviour {
+public class TreeMassPlacer : MonoBehaviour {
     #region SerializedFields
     [SerializeField] protected GameObject _treePrefab;
     [SerializeField] protected int _numOfTree;
@@ -80,6 +80,8 @@ public abstract class TreeMassPlacer : MonoBehaviour {
         _triggerRegen = false;
         _numOfFailed = 0;
         _numOfBurnt = 0;
+        _numOfBurning = 0;
+        _numOfExtinguished = 0;
         ClearOldTrees();
         for(int i = 0; i < repeatFor; ++i) {
             StartCoroutine(GenerateTrees(i));

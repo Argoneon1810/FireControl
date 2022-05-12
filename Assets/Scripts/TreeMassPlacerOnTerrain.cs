@@ -29,4 +29,8 @@ public class TreeMassPlacerOnTerrain : TreeMassPlacer {
             positions.Add(_mTerrains[i].transform.position);
         }
     }
+
+    private void Start() {
+        Generate();
+    }
 }
