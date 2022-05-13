@@ -91,21 +91,21 @@ public class FireSpread : MonoBehaviour {
     }
 
     public void MarkTorched() {
-        _bIsOnFire = true;
         if(mAnimator.GetCurrentAnimatorStateInfo(mAnimator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_Unburnt")) {
+            _bIsOnFire = true;
             mAnimator.SetTrigger("Set Fire");
             OnCatchFire?.Invoke();
         }
     }
 
     public void MarkExtinguished() {
-        _bIsOnFire = false;
         if(mAnimator.GetCurrentAnimatorStateInfo(mAnimator.GetLayerIndex("Base Layer")).fullPathHash == Animator.StringToHash("Base Layer.Tree_OnFire")) {
+            _bIsOnFire = false;
             mAnimator.SetTrigger("Extinguished");
             mAnimator.SetBool("Set Fire", false);   //unneccesary, but just in case
             OnExtinguished?.Invoke();
+            continuousFlameTime = 0;
         }
-        continuousFlameTime = 0;
     }
 
     public void MarkDoneBurning() {

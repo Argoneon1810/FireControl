@@ -95,6 +95,12 @@ public class TreeMassPlacer : MonoBehaviour {
         _gOs.Clear();
     }
 
+    public void UpdateFireSpreadDelay() {
+        foreach(GameObject gO in _gOs) {
+            gO.GetComponent<FireSpread>().spreadTimeGoal = _masterSpreadTime;
+        }
+    }
+
     public IEnumerator GenerateTrees(int index) {
         yield return new WaitForEndOfFrame();       //slight delay needed as the first tree happens to be spawned before the landmesh sinks down, which make it float in the air
         
@@ -121,6 +127,7 @@ public class TreeMassPlacer : MonoBehaviour {
                         gO.GetComponent<FireSpread>().OnCatchFire += BurningCounter;
                         gO.GetComponent<FireSpread>().OnDoneBurning += BurntCounter;
                         gO.GetComponent<FireSpread>().OnExtinguished += ExtinguishedCounter;
+                        gO.GetComponent<FireSpread>().spreadTimeGoal = _masterSpreadTime;
                         yield return null;
                     } else {
                         ++_numOfFailed;

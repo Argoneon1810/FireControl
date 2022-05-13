@@ -16,7 +16,6 @@ public class GameStateManager : MonoBehaviour {
             yield return null;
         }
         canCheckWinCondition = true;
-        print("Now you can win");
     }
     
     void Update() {
@@ -33,12 +32,11 @@ public class GameStateManager : MonoBehaviour {
     }
 
     void GameOver() {
-        // print("GameOver");
+        if(SceneController.Instance == null) SceneController.Instance = new GameObject().AddComponent<SceneController>();
         SceneController.Instance.GoToSceneByName("GameOverScene");
     }
 
     void Win() {
-        print("WIN");
         if(SceneController.Instance == null) SceneController.Instance = new GameObject().AddComponent<SceneController>();
         SceneController.Instance.GoToSceneByName("WinScene");
     }
