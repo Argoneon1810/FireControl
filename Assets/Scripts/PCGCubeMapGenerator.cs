@@ -182,13 +182,31 @@ public class PCGCubeMapGenerator : MonoBehaviour {
     }
 
     private float[,] CreateNoiseForSurfaceGeneration() {
-        NoiseGenerator.Noise mPerlinNoise
-            = NoiseGenerator.CreatePerlinNoise(_mapChunkSize, _seed, _noiseScale, _octaves, _persistance, _lacunarity, _offset);
+        NoiseGenerator.Noise mPerlinNoise = NoiseGenerator.CreatePerlinNoise(
+            _mapChunkSize,
+            _seed, 
+            _noiseScale, 
+            _octaves, 
+            _persistance, 
+            _lacunarity, 
+            _offset
+        );
         if(_useFalloff) {
-            if(_clampFalloff)
-                mPerlinNoise.ApplySecondNoise(NoiseGenerator.GenerateFalloff(_mapChunkSize, _edgeFalloffCurve));
-            else
-                mPerlinNoise.ApplySecondNoiseUnclamped(NoiseGenerator.GenerateFalloff(_mapChunkSize, _edgeFalloffCurve));
+            if(_clampFalloff) {
+                mPerlinNoise.ApplySecondNoise(
+                    NoiseGenerator.GenerateFalloff(
+                        _mapChunkSize,
+                        _edgeFalloffCurve
+                    )
+                );
+            } else {
+                mPerlinNoise.ApplySecondNoiseUnclamped(
+                    NoiseGenerator.GenerateFalloff(
+                        _mapChunkSize,
+                        _edgeFalloffCurve
+                    )
+                );
+            }
         }
         return mPerlinNoise.Generate();
     }
